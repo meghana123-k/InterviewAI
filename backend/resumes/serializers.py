@@ -3,12 +3,16 @@ from .models import Resume
 
 
 class ResumeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Resume
-        fields = "__all__"
+        fields = (
+            "id",
+            "file",
+            "uploaded_at",
+            "extracted_text",
+        )
         read_only_fields = (
-            "user",
+            "id",
             "uploaded_at",
             "extracted_text",
         )
