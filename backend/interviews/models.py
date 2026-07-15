@@ -37,7 +37,7 @@ class Interview(models.Model):
         choices=DIFFICULTY_CHOICES,
     )
 
-    duration = models.PositiveIntegerField(help_text="Duration in minutes")
+    duration = models.PositiveIntegerField()
 
     skills = models.JSONField(default=list)
 
