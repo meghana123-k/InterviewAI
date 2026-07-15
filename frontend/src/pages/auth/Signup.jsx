@@ -35,7 +35,7 @@ function Signup() {
 
       await register(form);
 
-      navigate("/login"m {
+      navigate("/login", {
         replace: true,
       });
     } catch {
