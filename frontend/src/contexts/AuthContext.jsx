@@ -38,9 +38,7 @@ export const AuthProvider = ({ children }) => {
 
     saveTokens(response.data);
 
-    const userResponse = await getCurrentUser();
-
-    setUser(userResponse.data);
+    await loadUser();
   };
 
   const register = async (data) => {
@@ -60,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         register,
+        loadUser,
       }}
     >
       {children}
