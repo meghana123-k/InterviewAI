@@ -3,9 +3,15 @@ export const saveTokens = (tokens) => {
   localStorage.setItem("refresh", tokens.refresh);
 };
 
-export const removeTokens = () => {
+export const getAccessToken = () => {
+  return localStorage.getItem("access");
+};
+
+export const getRefreshToken = () => {
+  return localStorage.getItem("refresh");
+};
+
+export const clearTokens = () => {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
 };
-
-export const getAccessToken = () => localStorage.getItem("access");

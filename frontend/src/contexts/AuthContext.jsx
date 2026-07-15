@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser } from "../services/authService";
-import { removeTokens } from "../utils/token";
+import { saveTokens, clearTokens, getAccessToken } from "../utils/token";
+import {
+  login as loginService,
+  register as registerService,
+  getCurrentUser,
+} from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -8,12 +12,17 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
+  const loadUser = async () => {
     try {
-      const res = await getCurrentUser();
-      setUser(res.data);
-    } catch {
-      removeTokens();
+      if (!getAccessToken()) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await getCurrentUser();
+      setUser(response.data);
+    } catch (error) {
+      clearTokens();
       setUser(null);
     } finally {
       setLoading(false);
@@ -21,16 +30,36 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUser();
+    loadUser();
   }, []);
+
+  const login = async (credentials) => {
+    const response = await loginService(credentials);
+
+    saveTokens(response.data);
+
+    const userResponse = await getCurrentUser();
+
+    setUser(userResponse.data);
+  };
+
+  const register = async (data) => {
+    await registerService(data);
+  };
+
+  const logout = () => {
+    clearTokens();
+    setUser(null);
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        setUser,
         loading,
-        fetchUser,
+        login,
+        logout,
+        register,
       }}
     >
       {children}
