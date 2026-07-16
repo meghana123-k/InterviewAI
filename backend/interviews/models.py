@@ -145,3 +145,35 @@ class QuestionBank(models.Model):
 
     def __str__(self):
         return f"{self.skill} - {self.question[:50]}"
+
+
+class InterviewAnswer(models.Model):
+
+    interview = models.ForeignKey(
+        Interview,
+        on_delete=models.CASCADE,
+        related_name="answers",
+    )
+
+    question = models.OneToOneField(
+        InterviewQuestion,
+        on_delete=models.CASCADE,
+        related_name="answer",
+    )
+
+    answer = models.TextField()
+
+    score = models.FloatField(
+        default=0,
+    )
+
+    feedback = models.TextField(
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return f"{self.interview.id} - Q{self.question.question_number}"

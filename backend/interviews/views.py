@@ -1,29 +1,135 @@
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
+from .models import Interview
 from .serializers import InterviewSerializer
 from .services.interview_service import InterviewService
-
+from .models import InterviewQuestion, InterviewAnswer
+from .serializers import (
+    InterviewSerializer,
+    InterviewQuestionSerializer,
+    InterviewAnswerSerializer,
+)
 
 class InterviewCreateView(generics.CreateAPIView):
 
+    permission_classes = [IsAuthenticated]
+
     serializer_class = InterviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
         interview = InterviewService.create_interview(
             request.user,
-            serializer.validated_data,
+            request.data,
         )
 
-        output = InterviewSerializer(interview)
+        serializer = self.get_serializer(interview)
+
+        from rest_framework.response import Response
+
+        return Response(serializer.data)
+
+
+class InterviewDetailView(generics.RetrieveAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = InterviewSerializer
+
+    lookup_field = "id"
+
+    def get_queryset(self):
+
+        return Interview.objects.filter(user=self.request.user)
+
+
+class SubmitAnswerView(generics.GenericAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = InterviewAnswerSerializer
+
+    def post(self, request, question_id):
+
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        question = generics.get_object_or_404(
+            InterviewQuestion,
+            id=question_id,
+        )
+
+        interview = question.interview
+
+        if interview.user != request.user:
+            return Response(
+                {"detail": "Permission denied."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if InterviewAnswer.objects.filter(question=question).exists():
+
+            return Response(
+                {"detail": "Answer already submitted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        InterviewAnswer.objects.create(
+            interview=interview,
+            question=question,
+            answer=serializer.validated_data["answer"],
+        )
+
+        if interview.status == "PENDING":
+            interview.status = "IN_PROGRESS"
+            interview.save(update_fields=["status"])
 
         return Response(
-            output.data,
+            {"message": "Answer submitted successfully."},
             status=status.HTTP_201_CREATED,
         )
+
+
+class CurrentQuestionView(generics.GenericAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = InterviewQuestionSerializer
+
+    def get(self, request, id):
+
+        interview = generics.get_object_or_404(
+            Interview,
+            id=id,
+            user=request.user,
+        )
+
+        answered_ids = interview.answers.values_list(
+            "question_id",
+            flat=True,
+        )
+
+        question = (
+            interview.questions.exclude(id__in=answered_ids)
+            .order_by("question_number")
+            .first()
+        )
+
+        if question is None:
+
+            from rest_framework.response import Response
+
+            return Response(
+                {
+                    "completed": True,
+                    "message": "Interview completed.",
+                }
+            )
+
+        serializer = self.get_serializer(question)
+
+        from rest_framework.response import Response
+
+        return Response(serializer.data)
