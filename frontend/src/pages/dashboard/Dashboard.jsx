@@ -41,7 +41,6 @@ function Dashboard() {
       "
     >
       <Navbar />
-
       <main className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-10">
           <h1
@@ -166,7 +165,6 @@ function Dashboard() {
             )}
           </div>
         </div>
-
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           <div
             className="

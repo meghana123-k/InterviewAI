@@ -15,6 +15,7 @@ import Button from "../../components/ui/Button";
 import Loader from "../../components/ui/Loader";
 
 import { getInterview } from "../../services/interviewService";
+import Navbar from "../../components/layout/Navbar";
 
 function InterviewStart() {
   const { id } = useParams();
@@ -67,9 +68,11 @@ function InterviewStart() {
   }
 
   return (
-    <div
-      className="
-        min-h-screen
+    <>
+      <Navbar />
+      <div
+        className="
+      min-h-screen
         bg-gradient-to-br
         from-slate-100
         via-violet-50
@@ -80,12 +83,12 @@ function InterviewStart() {
         dark:via-slate-900
         dark:to-indigo-950
       "
-    >
-      <div className="mx-auto max-w-5xl">
-        {/* Hero Banner */}
+      >
+        <div className="mx-auto max-w-5xl">
+          {/* Hero Banner */}
 
-        <div
-          className="
+          <div
+            className="
             mb-8
             rounded-3xl
             bg-gradient-to-r
@@ -96,133 +99,136 @@ function InterviewStart() {
             text-white
             shadow-2xl
           "
-        >
-          <div className="flex items-center gap-3">
-            <Sparkles size={34} />
+          >
+            <div className="flex items-center gap-3">
+              <Sparkles size={34} />
 
-            <h1 className="text-3xl font-black">AI Mock Interview</h1>
+              <h1 className="text-3xl font-black">AI Mock Interview</h1>
+            </div>
+
+            <p className="mt-4 max-w-2xl text-white/80">
+              Prepare yourself for a realistic AI-powered interview experience
+              tailored to your role, skills, and difficulty level.
+            </p>
           </div>
 
-          <p className="mt-4 max-w-2xl text-white/80">
-            Prepare yourself for a realistic AI-powered interview experience
-            tailored to your role, skills, and difficulty level.
-          </p>
-        </div>
+          {/* Interview Details */}
 
-        {/* Interview Details */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <div className="flex items-center gap-3">
+                <Brain size={28} className="text-violet-500" />
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <div className="flex items-center gap-3">
-              <Brain size={28} className="text-violet-500" />
-
-              <h2 className="text-xl font-bold">Interview Details</h2>
-            </div>
-
-            <div className="mt-6 space-y-5">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Role</span>
-
-                <span className="font-semibold">{interview.role}</span>
+                <h2 className="text-xl font-bold">Interview Details</h2>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-500">Difficulty</span>
+              <div className="mt-6 space-y-5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Role</span>
 
-                <span className="font-semibold">{interview.difficulty}</span>
+                  <span className="font-semibold">{interview.role}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Difficulty</span>
+
+                  <span className="font-semibold">{interview.difficulty}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Questions</span>
+
+                  <span className="font-semibold">
+                    {interview.total_questions}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Duration</span>
+
+                  <span className="font-semibold">
+                    {interview.duration} min
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center gap-3">
+                <ShieldCheck size={28} className="text-emerald-500" />
+
+                <h2 className="text-xl font-bold">Instructions</h2>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-500">Questions</span>
+              <ul className="mt-6 space-y-4 text-slate-600 dark:text-slate-300">
+                <li>• Read each question carefully before answering.</li>
 
-                <span className="font-semibold">
-                  {interview.total_questions}
-                </span>
-              </div>
+                <li>• Keep your answers concise and relevant.</li>
 
-              <div className="flex justify-between">
-                <span className="text-slate-500">Duration</span>
+                <li>• Do not refresh or close the browser.</li>
 
-                <span className="font-semibold">{interview.duration} min</span>
-              </div>
-            </div>
-          </Card>
+                <li>• Stay focused throughout the session.</li>
 
-          <Card>
-            <div className="flex items-center gap-3">
-              <ShieldCheck size={28} className="text-emerald-500" />
+                <li>• AI will evaluate your responses.</li>
+              </ul>
+            </Card>
+          </div>
 
-              <h2 className="text-xl font-bold">Instructions</h2>
-            </div>
+          {/* Stats */}
 
-            <ul className="mt-6 space-y-4 text-slate-600 dark:text-slate-300">
-              <li>• Read each question carefully before answering.</li>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <Card>
+              <Clock3 size={36} className="text-cyan-500" />
 
-              <li>• Keep your answers concise and relevant.</li>
+              <h3 className="mt-4 font-semibold">Time Limit</h3>
 
-              <li>• Do not refresh or close the browser.</li>
+              <p className="mt-2 text-3xl font-black text-cyan-600">
+                {interview.duration}
+              </p>
 
-              <li>• Stay focused throughout the session.</li>
+              <p className="text-sm text-slate-500">Minutes</p>
+            </Card>
 
-              <li>• AI will evaluate your responses.</li>
-            </ul>
-          </Card>
-        </div>
+            <Card>
+              <Target size={36} className="text-violet-500" />
 
-        {/* Stats */}
+              <h3 className="mt-4 font-semibold">Difficulty</h3>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <Card>
-            <Clock3 size={36} className="text-cyan-500" />
+              <p className="mt-2 text-2xl font-black text-violet-600">
+                {interview.difficulty}
+              </p>
+            </Card>
 
-            <h3 className="mt-4 font-semibold">Time Limit</h3>
+            <Card>
+              <Brain size={36} className="text-emerald-500" />
 
-            <p className="mt-2 text-3xl font-black text-cyan-600">
-              {interview.duration}
-            </p>
+              <h3 className="mt-4 font-semibold">Questions</h3>
 
-            <p className="text-sm text-slate-500">Minutes</p>
-          </Card>
+              <p className="mt-2 text-3xl font-black text-emerald-600">
+                {interview.total_questions}
+              </p>
+            </Card>
+          </div>
 
-          <Card>
-            <Target size={36} className="text-violet-500" />
+          {/* Start Button */}
 
-            <h3 className="mt-4 font-semibold">Difficulty</h3>
-
-            <p className="mt-2 text-2xl font-black text-violet-600">
-              {interview.difficulty}
-            </p>
-          </Card>
-
-          <Card>
-            <Brain size={36} className="text-emerald-500" />
-
-            <h3 className="mt-4 font-semibold">Questions</h3>
-
-            <p className="mt-2 text-3xl font-black text-emerald-600">
-              {interview.total_questions}
-            </p>
-          </Card>
-        </div>
-
-        {/* Start Button */}
-
-        <div className="mt-10">
-          <Button
-            onClick={() => navigate(`/interview/${id}/session`)}
-            className="
+          <div className="mt-10">
+            <Button
+              onClick={() => navigate(`/interview/${id}/session`)}
+              className="
               flex
               items-center
               justify-center
               gap-3
             "
-          >
-            <PlayCircle size={20} />
-            Start Interview
-          </Button>
+            >
+              <PlayCircle size={20} />
+              Start Interview
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

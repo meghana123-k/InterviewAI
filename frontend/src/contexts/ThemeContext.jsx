@@ -17,9 +17,17 @@ export function ThemeProvider({ children }) {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+
+    console.log("Theme Applied:", darkMode ? "Dark" : "Light");
+    console.log("HTML Classes:", root.className);
+  }, [darkMode]);
+
+  useEffect(() => {
+    console.log("darkMode state =", darkMode);
   }, [darkMode]);
 
   const toggleTheme = () => {
+    console.log("Theme button clicked");
     setDarkMode((prev) => !prev);
   };
 
@@ -36,5 +44,11 @@ export function ThemeProvider({ children }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error("useTheme must be used inside ThemeProvider");
+  }
+
+  return context;
 }

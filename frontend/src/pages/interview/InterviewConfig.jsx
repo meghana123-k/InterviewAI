@@ -13,7 +13,6 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Loader from "../../components/ui/Loader";
-
 import { getLatestResume } from "../../services/resumeService";
 import { createInterview } from "../../services/interviewService";
 
