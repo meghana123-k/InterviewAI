@@ -1,6 +1,7 @@
+from interviews.ai.question_generator import QuestionGenerator
 from resumes.models import Resume
 
-from interviews.models import Interview
+from interviews.models import Interview, InterviewQuestion
 
 
 class InterviewService:
@@ -22,5 +23,21 @@ class InterviewService:
             duration=validated_data["duration"],
             skills=validated_data["skills"],
         )
+        generator = QuestionGenerator()
 
+        questions = generator.generate_questions(
+            role=interview.role,
+            experience=interview.experience,
+            difficulty=interview.difficulty,
+            skills=interview.skills,
+            question_count=max(5, interview.duration // 2),
+        )
+        for q in questions:
+            InterviewQuestion.objects.create(
+                interview=interview,
+                question_number=q["question_number"],
+                skill=q["skill"],
+                question=q["question"],
+                difficulty=q["difficulty"],
+            )
         return interview

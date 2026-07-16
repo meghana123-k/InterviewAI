@@ -9,3 +9,13 @@ export const uploadResume = async (formData) => {
 
   return response.data;
 };
+
+export const getLatestResume = async () => {
+  const response = await api.get("/resumes/latest/");
+  return response.data;
+};
+
+export const updateResume = async (data) => {
+  const response = await api.patch("/resumes/latest/", data);
+  return response.data;
+};

@@ -1,36 +1,34 @@
 const variants = {
-  primary: "bg-blue-600 hover:bg-blue-700 text-white",
+  primary:
+    "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:scale-[1.02]",
 
-  secondary: "bg-slate-200 hover:bg-slate-300 text-slate-800",
+  secondary: "bg-slate-200 text-slate-800 hover:bg-slate-300",
 
-  danger: "bg-red-600 hover:bg-red-700 text-white",
+  danger: "bg-gradient-to-r from-red-500 to-pink-500 text-white",
 
-  outline: "border border-slate-300 bg-white hover:bg-slate-100 text-slate-700",
+  outline: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100",
 };
 
 function Button({
   children,
   variant = "primary",
   type = "button",
+  disabled,
   className = "",
-  disabled = false,
-  onClick,
 }) {
   return (
     <button
       type={type}
       disabled={disabled}
-      onClick={onClick}
       className={`
         w-full
-        rounded-lg
-        px-4
+        rounded-xl
         py-3
-        font-medium
-        transition
-        duration-200
-        disabled:cursor-not-allowed
-        disabled:opacity-60
+        font-semibold
+        shadow-lg
+        transition-all
+        duration-300
+        disabled:opacity-50
         ${variants[variant]}
         ${className}
       `}

@@ -54,3 +54,25 @@ class Interview(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
+class InterviewQuestion(models.Model):
+    interview = models.ForeignKey(
+        "Interview",
+        on_delete=models.CASCADE,
+        related_name="questions",
+    )
+
+    question_number = models.PositiveIntegerField()
+
+    skill = models.CharField(max_length=100)
+
+    question = models.TextField()
+
+    difficulty = models.CharField(max_length=20)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["question_number"]
+
+    def __str__(self):
+        return f"Q{self.question_number} - {self.skill}"

@@ -1,3 +1,5 @@
+// path: frontend/src/components/auth/ProtectedRoute.jsx
+
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Loader from "../ui/Loader";
