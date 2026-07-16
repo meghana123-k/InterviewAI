@@ -1,24 +1,38 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import {
+  Brain,
+  Sparkles,
+  Clock3,
+  Target,
+} from "lucide-react";
+
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Loader from "../../components/ui/Loader";
 
 import { getLatestResume } from "../../services/resumeService";
 import { createInterview } from "../../services/interviewService";
 
-const InterviewConfig = () => {
+const DEFAULT_CONFIG = {
+  role: "Software Engineer",
+  experience: "Fresher",
+  difficulty: "MEDIUM",
+  duration: 20,
+  skills: [],
+};
+
+function InterviewConfig() {
   const navigate = useNavigate();
 
   const [resume, setResume] = useState(null);
 
-  const [formData, setFormData] = useState({
-    role: "Software Engineer",
-    experience: "Fresher",
-    difficulty: "MEDIUM",
-    duration: 20,
-    skills: [],
-  });
+  const [formData, setFormData] = useState(DEFAULT_CONFIG);
+
+  const [resumeLoading, setResumeLoading] = useState(true);
 
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +52,8 @@ const InterviewConfig = () => {
       }));
     } catch (error) {
       console.error(error);
+    } finally {
+      setResumeLoading(false);
     }
   };
 
@@ -51,14 +67,21 @@ const InterviewConfig = () => {
   };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: name === "duration" ? Number(value) : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.skills.length === 0) {
+      alert("Please select at least one skill.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -68,108 +91,280 @@ const InterviewConfig = () => {
       navigate(`/interview/${interview.id}`);
     } catch (error) {
       console.error(error);
-      alert("Failed to create interview.");
+
+      alert(
+        error?.response?.data?.detail ||
+          "Failed to create interview."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  if (resumeLoading) {
+    return (
+      <div
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-gradient-to-br
+          from-slate-100
+          via-violet-50
+          to-cyan-50
+          dark:from-slate-950
+          dark:via-slate-900
+          dark:to-indigo-950
+        "
+      >
+        <Loader />
+      </div>
+    );
+  }
+
   if (!resume) {
-    return <div className="text-center mt-20">No finalized resume found.</div>;
+    return (
+      <div
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          text-center
+          text-xl
+          font-semibold
+        "
+      >
+        No finalized resume found.
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <Card>
-        <h1 className="text-3xl font-bold mb-8">Configure Interview</h1>
+    <div
+      className="
+        min-h-screen
+        bg-gradient-to-br
+        from-slate-100
+        via-violet-50
+        to-cyan-50
+        px-5
+        py-10
+        dark:from-slate-950
+        dark:via-slate-900
+        dark:to-indigo-950
+      "
+    >
+      <div className="mx-auto max-w-5xl">
+        <div
+          className="
+            mb-8
+            rounded-3xl
+            bg-gradient-to-r
+            from-violet-600
+            via-indigo-600
+            to-cyan-600
+            p-8
+            text-white
+            shadow-2xl
+          "
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles size={32} />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="font-medium">Role</label>
+            <h1 className="text-3xl font-black">
+              Configure AI Interview
+            </h1>
+          </div>
 
-            <input
-              className="w-full border rounded-lg p-3 mt-2"
+          <p className="mt-4 text-white/80">
+            Customize your interview settings and start
+            practicing with AI-generated questions.
+          </p>
+        </div>
+
+        <Card>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8"
+          >
+            <Input
+              label="Role"
               name="role"
               value={formData.role}
               onChange={handleChange}
+              placeholder="Enter target role"
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label className="font-medium">Experience</label>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block font-medium">
+                  Experience
+                </label>
 
-              <select
-                className="w-full border rounded-lg p-3 mt-2"
-                name="experience"
-                value={formData.experience}
-                onChange={handleChange}
-              >
-                <option>Fresher</option>
-                <option>1-2 Years</option>
-                <option>3-5 Years</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="font-medium">Difficulty</label>
-
-              <select
-                className="w-full border rounded-lg p-3 mt-2"
-                name="difficulty"
-                value={formData.difficulty}
-                onChange={handleChange}
-              >
-                <option value="EASY">Easy</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HARD">Hard</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="font-medium">Duration</label>
-
-            <select
-              className="w-full border rounded-lg p-3 mt-2"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-            >
-              <option value={10}>10 Minutes</option>
-              <option value={20}>20 Minutes</option>
-              <option value={30}>30 Minutes</option>
-            </select>
-          </div>
-
-          <div>
-            <h2 className="font-semibold mb-4">Skills</h2>
-
-            <div className="flex flex-wrap gap-3">
-              {resume.extracted_skills.map((skill) => (
-                <button
-                  type="button"
-                  key={skill}
-                  onClick={() => toggleSkill(skill)}
-                  className={`px-4 py-2 rounded-full border ${
-                    formData.skills.includes(skill)
-                      ? "bg-violet-600 text-white"
-                      : "bg-white"
-                  }`}
+                <select
+                  disabled={loading}
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-slate-300
+                    bg-white/80
+                    px-4
+                    py-3
+                    dark:border-slate-700
+                    dark:bg-slate-800/60
+                  "
                 >
-                  {skill}
-                </button>
-              ))}
-            </div>
-          </div>
+                  <option>Fresher</option>
+                  <option>1-2 Years</option>
+                  <option>3-5 Years</option>
+                </select>
+              </div>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Creating Interview..." : "Start Interview"}
-          </Button>
-        </form>
-      </Card>
+              <div>
+                <label className="mb-2 block font-medium">
+                  Difficulty
+                </label>
+
+                <select
+                  disabled={loading}
+                  name="difficulty"
+                  value={formData.difficulty}
+                  onChange={handleChange}
+                  className="
+                    w-full
+                    rounded-xl
+                    border
+                    border-slate-300
+                    bg-white/80
+                    px-4
+                    py-3
+                    dark:border-slate-700
+                    dark:bg-slate-800/60
+                  "
+                >
+                  <option value="EASY">Easy</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HARD">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block font-medium">
+                Duration
+              </label>
+
+              <select
+                disabled={loading}
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-slate-300
+                  bg-white/80
+                  px-4
+                  py-3
+                  dark:border-slate-700
+                  dark:bg-slate-800/60
+                "
+              >
+                <option value={10}>10 Minutes</option>
+                <option value={20}>20 Minutes</option>
+                <option value={30}>30 Minutes</option>
+              </select>
+            </div>
+
+            <div>
+              <h2 className="mb-4 text-xl font-bold">
+                Select Skills
+              </h2>
+
+              <div className="flex flex-wrap gap-3">
+                {(resume.extracted_skills || []).map(
+                  (skill) => (
+                    <button
+                      key={skill}
+                      type="button"
+                      disabled={loading}
+                      onClick={() =>
+                        toggleSkill(skill)
+                      }
+                      className={`
+                        rounded-full
+                        border
+                        px-4
+                        py-2
+                        font-medium
+                        transition-all
+                        duration-300
+                        ${
+                          formData.skills.includes(skill)
+                            ? "bg-gradient-to-r from-violet-600 to-cyan-500 text-white border-transparent"
+                            : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                        }
+                      `}
+                    >
+                      {skill}
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl bg-white/50 p-5 dark:bg-slate-900/40">
+                <Brain className="text-violet-500" />
+                <h3 className="mt-3 font-semibold">
+                  Skills
+                </h3>
+                <p className="text-3xl font-black text-violet-600">
+                  {formData.skills.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white/50 p-5 dark:bg-slate-900/40">
+                <Clock3 className="text-cyan-500" />
+                <h3 className="mt-3 font-semibold">
+                  Duration
+                </h3>
+                <p className="text-3xl font-black text-cyan-600">
+                  {formData.duration}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white/50 p-5 dark:bg-slate-900/40">
+                <Target className="text-emerald-500" />
+                <h3 className="mt-3 font-semibold">
+                  Level
+                </h3>
+                <p className="text-xl font-black text-emerald-600">
+                  {formData.difficulty}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Creating Interview..."
+                : "Start AI Interview"}
+            </Button>
+          </form>
+        </Card>
+      </div>
     </div>
   );
-};
+}
 
 export default InterviewConfig;

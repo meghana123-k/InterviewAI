@@ -7,6 +7,8 @@ import ResumeUpload from "../pages/resume/ResumeUpload";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import ResumeReview from "../pages/resume/ResumeView";
 import InterviewConfig from "../pages/interview/InterviewConfig";
+import InterviewStart from "../pages/interview/InterviewStart";
+import InterviewSession from "../pages/interview/InterviewSession";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -49,6 +51,9 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/interview/:id" element={<InterviewStart />} />
+
+        <Route path="/interview/:id/session" element={<InterviewSession />} />
       </Routes>
     </BrowserRouter>
   );

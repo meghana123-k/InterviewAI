@@ -13,13 +13,15 @@ function Button({
   children,
   variant = "primary",
   type = "button",
-  disabled,
+  disabled = false,
   className = "",
+  onClick,
 }) {
   return (
     <button
       type={type}
       disabled={disabled}
+      onClick={onClick}
       className={`
         w-full
         rounded-xl
