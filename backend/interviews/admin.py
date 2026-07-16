@@ -1,3 +1,11 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    Interview,
+    InterviewQuestion,
+    QuestionBank,
+)
+
+admin.site.register(Interview)
+admin.site.register(InterviewQuestion)
+admin.site.register(QuestionBank)

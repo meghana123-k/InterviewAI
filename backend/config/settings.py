@@ -34,7 +34,7 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # Application definition
-
+GEMINI_MODEL = "gemini-flash-latest"
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

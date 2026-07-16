@@ -16,6 +16,11 @@ class Interview(models.Model):
         ("COMPLETED", "Completed"),
     ]
 
+    GENERATION_SOURCE_CHOICES = [
+        ("AI", "AI"),
+        ("QUESTION_BANK", "Question Bank"),
+    ]
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -47,6 +52,23 @@ class Interview(models.Model):
         default="PENDING",
     )
 
+    # AI Metadata
+    provider = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    generation_source = models.CharField(
+        max_length=30,
+        choices=GENERATION_SOURCE_CHOICES,
+        default="AI",
+    )
+
+    prompt_version = models.CharField(
+        max_length=20,
+        default="v1",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -54,9 +76,12 @@ class Interview(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
+
+
 class InterviewQuestion(models.Model):
+
     interview = models.ForeignKey(
-        "Interview",
+        Interview,
         on_delete=models.CASCADE,
         related_name="questions",
     )
@@ -76,3 +101,47 @@ class InterviewQuestion(models.Model):
 
     def __str__(self):
         return f"Q{self.question_number} - {self.skill}"
+
+
+class QuestionBank(models.Model):
+
+    DIFFICULTY_CHOICES = [
+        ("EASY", "Easy"),
+        ("MEDIUM", "Medium"),
+        ("HARD", "Hard"),
+    ]
+
+    skill = models.CharField(max_length=100)
+
+    role = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    difficulty = models.CharField(
+        max_length=20,
+        choices=DIFFICULTY_CHOICES,
+    )
+
+    question = models.TextField()
+
+    expected_answer = models.TextField(
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = [
+            "skill",
+            "difficulty",
+        ]
+
+    def __str__(self):
+        return f"{self.skill} - {self.question[:50]}"
