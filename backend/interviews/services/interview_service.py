@@ -9,6 +9,7 @@ class InterviewService:
     @staticmethod
     @transaction.atomic
     def create_interview(user, validated_data):
+
         active_interview = user.interviews.filter(
             status__in=[
                 "PENDING",
@@ -20,19 +21,47 @@ class InterviewService:
             raise ValueError(
                 "Finish your current interview before creating a new one."
             )
-        resume = user.resumes.filter(resume_status="READY").first()
+
+        skills = validated_data.get("skills", [])
+        duration = validated_data.get("duration")
+        difficulty = validated_data.get("difficulty")
+
+        if not skills:
+            raise ValueError(
+                "At least one skill is required."
+            )
+
+        if duration is None or duration <= 0:
+            raise ValueError(
+                "Duration must be greater than zero."
+            )
+
+        if difficulty not in [
+            "EASY",
+            "MEDIUM",
+            "HARD",
+        ]:
+            raise ValueError(
+                "Invalid difficulty."
+            )
+
+        resume = user.resumes.filter(
+            resume_status="READY"
+        ).first()
 
         if resume is None:
-            raise ValueError("No finalized resume found.")
+            raise ValueError(
+                "No finalized resume found."
+            )
 
         interview = Interview.objects.create(
             user=user,
             resume=resume,
             role=validated_data["role"],
             experience=validated_data["experience"],
-            difficulty=validated_data["difficulty"],
-            duration=validated_data["duration"],
-            skills=validated_data["skills"],
+            difficulty=difficulty,
+            duration=duration,
+            skills=skills,
         )
 
         generator = QuestionGenerator()
@@ -49,7 +78,6 @@ class InterviewService:
         )
 
         for question in questions:
-
             InterviewQuestion.objects.create(
                 interview=interview,
                 question_number=question["question_number"],
@@ -59,9 +87,7 @@ class InterviewService:
             )
 
         interview.provider = "Gemini"
-
         interview.generation_source = "AI"
-
         interview.prompt_version = "v1"
 
         interview.save(

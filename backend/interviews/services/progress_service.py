@@ -1,34 +1,30 @@
-from interviews.models import InterviewQuestion
-
-
 class ProgressService:
 
     @staticmethod
     def get_progress(interview):
-        total_questions = InterviewQuestion.objects.filter(interview=interview).count()
 
-        answered_questions = InterviewQuestion.objects.filter(
-            interview=interview,
-            is_answered=True,
-        ).count()
+        total_questions = interview.questions.count()
+        answered_questions = interview.answers.count()
 
-        remaining_questions = total_questions - answered_questions
+        remaining_questions = max(
+            total_questions - answered_questions,
+            0,
+        )
 
         progress_percentage = (
-            round((answered_questions / total_questions) * 100)
-            if total_questions > 0
-            else 0
+            round(answered_questions * 100 / total_questions) if total_questions else 0
+        )
+
+        current_question = min(
+            answered_questions + 1,
+            total_questions,
         )
 
         return {
             "total_questions": total_questions,
             "answered_questions": answered_questions,
             "remaining_questions": remaining_questions,
-            "current_question": (
-                answered_questions + 1
-                if answered_questions < total_questions
-                else total_questions
-            ),
+            "current_question": current_question,
             "progress_percentage": progress_percentage,
             "status": interview.status,
         }
