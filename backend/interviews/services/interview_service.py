@@ -9,7 +9,17 @@ class InterviewService:
     @staticmethod
     @transaction.atomic
     def create_interview(user, validated_data):
+        active_interview = user.interviews.filter(
+            status__in=[
+                "PENDING",
+                "IN_PROGRESS",
+            ]
+        ).first()
 
+        if active_interview:
+            raise ValueError(
+                "Finish your current interview before creating a new one."
+            )
         resume = user.resumes.filter(resume_status="READY").first()
 
         if resume is None:

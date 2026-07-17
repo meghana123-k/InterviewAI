@@ -3,6 +3,7 @@ from .views import (
     InterviewCreateView,
     InterviewDetailView,
     CurrentQuestionView,
+    InterviewProgressView,
     SubmitAnswerView,
 )
 
@@ -22,5 +23,10 @@ urlpatterns = [
     path(
         "question/<int:question_id>/answer/",
         SubmitAnswerView.as_view(),
+    ),
+    path(
+        "<int:interview_id>/progress/",
+        InterviewProgressView.as_view(),
+        name="interview-progress",
     ),
 ]

@@ -1,15 +1,19 @@
-from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from .models import Interview
+from interviews.services.progress_service import ProgressService
+from rest_framework import generics, status
+
 from .serializers import InterviewSerializer
 from .services.interview_service import InterviewService
-from .models import InterviewQuestion, InterviewAnswer
+from .models import Interview, InterviewQuestion, InterviewAnswer
 from .serializers import (
     InterviewSerializer,
     InterviewQuestionSerializer,
     InterviewAnswerSerializer,
 )
+
 
 class InterviewCreateView(generics.CreateAPIView):
 
@@ -19,16 +23,24 @@ class InterviewCreateView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
 
-        interview = InterviewService.create_interview(
-            request.user,
-            request.data,
-        )
+        try:
+            interview = InterviewService.create_interview(
+                request.user,
+                request.data,
+            )
+
+        except ValueError as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = self.get_serializer(interview)
 
-        from rest_framework.response import Response
-
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class InterviewDetailView(generics.RetrieveAPIView):
@@ -118,18 +130,28 @@ class CurrentQuestionView(generics.GenericAPIView):
         )
 
         if question is None:
-
-            from rest_framework.response import Response
+            interview.status = "COMPLETED"
+            interview.save(update_fields=["status"])
 
             return Response(
-                {
-                    "completed": True,
-                    "message": "Interview completed.",
-                }
+                {"completed": True, "message": "Interview completed successfully."}
             )
-
         serializer = self.get_serializer(question)
 
         from rest_framework.response import Response
 
         return Response(serializer.data)
+
+
+class InterviewProgressView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, interview_id):
+        interview = Interview.objects.get(
+            id=interview_id,
+            user=request.user,
+        )
+
+        progress = ProgressService.get_progress(interview)
+
+        return Response(progress)
