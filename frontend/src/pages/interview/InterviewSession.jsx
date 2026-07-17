@@ -1,6 +1,64 @@
-import { Brain, Clock3, Mic, MessageSquare } from "lucide-react";
+// path: frontend/src/pages/interview/InterviewSession.jsx
 
-function InterviewSession() {
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import useInterview from "../../hooks/useInterview";
+
+import InterviewHeader from "../../components/interview/InterviewHeader";
+import ProgressCard from "../../components/interview/ProgressCard";
+import QuestionCard from "../../components/interview/QuestionCard";
+import AnswerBox from "../../components/interview/AnswerBox";
+import AIInfoCard from "../../components/interview/AIInfoCard";
+import FeedbackCard from "../../components/interview/FeedbackCard";
+
+export default function InterviewSession() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const { question, progress, loading, submitting, completed, submitAnswer } =
+    useInterview(id);
+
+  const [answer, setAnswer] = useState("");
+
+  useEffect(() => {
+    if (completed) {
+      navigate(`/interview/${id}/completed`, {
+        replace: true,
+      });
+    }
+  }, [completed, id, navigate]);
+
+  const handleSubmit = async () => {
+    if (!answer.trim()) {
+      alert("Please enter your answer.");
+      return;
+    }
+
+    try {
+      await submitAnswer(answer);
+      setAnswer("");
+    } catch (error) {
+      alert(error?.response?.data?.detail || "Failed to submit answer.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading interview...
+      </div>
+    );
+  }
+
+  if (!question) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        No question available.
+      </div>
+    );
+  }
+
   return (
     <div
       className="
@@ -15,222 +73,29 @@ function InterviewSession() {
       "
     >
       <div className="mx-auto max-w-7xl px-6 py-10">
-        {/* Header */}
-
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1
-              className="
-                text-4xl
-                font-black
-                text-slate-800
-                dark:text-white
-              "
-            >
-              AI Interview Session
-            </h1>
-
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
-              Answer each question carefully.
-            </p>
-          </div>
-
-          <div
-            className="
-              flex
-              items-center
-              gap-2
-              rounded-2xl
-              bg-white/70
-              px-5
-              py-3
-              shadow-lg
-              backdrop-blur-xl
-              dark:bg-slate-900/60
-            "
-          >
-            <Clock3 size={18} />
-
-            <span className="font-semibold">15:00</span>
-          </div>
-        </div>
-
-        {/* Main Layout */}
+        <InterviewHeader />
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* Question Panel */}
-
           <div className="lg:col-span-2">
-            <div
-              className="
-                rounded-3xl
-                bg-white/70
-                p-8
-                shadow-xl
-                backdrop-blur-xl
-                dark:bg-slate-900/60
-              "
-            >
-              <div className="flex items-center gap-3">
-                <Brain size={28} className="text-violet-500" />
+            <QuestionCard question={question} progress={progress} />
 
-                <h2 className="text-xl font-bold">Current Question</h2>
-              </div>
-
-              <div className="mt-8">
-                <span
-                  className="
-                    rounded-full
-                    bg-violet-100
-                    px-4
-                    py-2
-                    text-sm
-                    font-medium
-                    text-violet-700
-                  "
-                >
-                  Question 1 of 10
-                </span>
-
-                <h3 className="mt-6 text-2xl font-bold">
-                  Explain the difference between REST and GraphQL APIs.
-                </h3>
-              </div>
-
-              <div className="mt-8">
-                <textarea
-                  rows={8}
-                  placeholder="Type your answer here..."
-                  className="
-                    w-full
-                    rounded-2xl
-                    border
-                    border-slate-300
-                    bg-white
-                    p-4
-                    outline-none
-                    transition
-                    focus:border-violet-500
-                    dark:border-slate-700
-                    dark:bg-slate-800
-                  "
-                />
-              </div>
-
-              <div className="mt-6 flex gap-4">
-                <button
-                  className="
-                    rounded-xl
-                    bg-gradient-to-r
-                    from-violet-600
-                    to-cyan-500
-                    px-6
-                    py-3
-                    font-semibold
-                    text-white
-                  "
-                >
-                  Submit Answer
-                </button>
-
-                <button
-                  className="
-                    rounded-xl
-                    border
-                    border-slate-300
-                    px-6
-                    py-3
-                    font-semibold
-                  "
-                >
-                  Skip
-                </button>
-              </div>
-            </div>
+            <AnswerBox
+              answer={answer}
+              setAnswer={setAnswer}
+              submitting={submitting}
+              onSubmit={handleSubmit}
+            />
           </div>
 
-          {/* Right Panel */}
-
           <div className="space-y-6">
-            <div
-              className="
-                rounded-3xl
-                bg-white/70
-                p-6
-                shadow-xl
-                backdrop-blur-xl
-                dark:bg-slate-900/60
-              "
-            >
-              <h3 className="text-lg font-bold">Progress</h3>
+            <ProgressCard progress={progress} />
 
-              <div className="mt-5">
-                <div className="mb-2 flex justify-between">
-                  <span>Completed</span>
-                  <span>10%</span>
-                </div>
+            <AIInfoCard />
 
-                <div className="h-3 rounded-full bg-slate-200">
-                  <div
-                    className="
-                      h-3
-                      w-[10%]
-                      rounded-full
-                      bg-gradient-to-r
-                      from-violet-500
-                      to-cyan-500
-                    "
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="
-                rounded-3xl
-                bg-white/70
-                p-6
-                shadow-xl
-                backdrop-blur-xl
-                dark:bg-slate-900/60
-              "
-            >
-              <div className="flex items-center gap-2">
-                <Mic size={20} className="text-emerald-500" />
-
-                <h3 className="font-bold">Voice Mode</h3>
-              </div>
-
-              <p className="mt-3 text-sm text-slate-500">
-                Voice answering support can be enabled here.
-              </p>
-            </div>
-
-            <div
-              className="
-                rounded-3xl
-                bg-white/70
-                p-6
-                shadow-xl
-                backdrop-blur-xl
-                dark:bg-slate-900/60
-              "
-            >
-              <div className="flex items-center gap-2">
-                <MessageSquare size={20} className="text-cyan-500" />
-
-                <h3 className="font-bold">AI Feedback</h3>
-              </div>
-
-              <p className="mt-3 text-sm text-slate-500">
-                Feedback will appear after answering questions.
-              </p>
-            </div>
+            <FeedbackCard />
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default InterviewSession;

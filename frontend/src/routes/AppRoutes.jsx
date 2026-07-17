@@ -9,6 +9,7 @@ import ResumeReview from "../pages/resume/ResumeView";
 import InterviewConfig from "../pages/interview/InterviewConfig";
 import InterviewStart from "../pages/interview/InterviewStart";
 import InterviewSession from "../pages/interview/InterviewSession";
+import InterviewComplete from "../pages/interview/InterviewComplete";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -54,6 +55,14 @@ function AppRoutes() {
         <Route path="/interview/:id" element={<InterviewStart />} />
 
         <Route path="/interview/:id/session" element={<InterviewSession />} />
+        <Route
+          path="/interview/:id/completed"
+          element={
+            <ProtectedRoute>
+              <InterviewComplete />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
