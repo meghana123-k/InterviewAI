@@ -27,20 +27,6 @@ class InterviewCreateView(generics.CreateAPIView):
             interview = InterviewService.create_interview(
                 request.user,
                 request.data,
-                if not skills:
-    raise ValueError(
-        "At least one skill is required."
-    )
-
-if duration <= 0:
-    raise ValueError(
-        "Duration must be greater than zero."
-    )
-
-if difficulty not in ["EASY", "MEDIUM", "HARD"]:
-    raise ValueError(
-        "Invalid difficulty."
-    )
             )
 
         except ValueError as e:
